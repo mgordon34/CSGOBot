@@ -1,0 +1,14 @@
+Region Size
+553, 112 - 813 x 195
+
+Match Start Marker
+499, 170 - (255, 255, 255)
+
+White Marker
+51, 32 - (255, 255, 255)
+
+Counter Terrorists Win
+743, 32 - (26, 32, 35)
+
+Terrorists Win
+743, 32 - (84, 74, 59)
