@@ -1,8 +1,10 @@
+import javax.imageio.ImageIO;
 import java.awt.AWTException;
 import java.awt.Desktop;
 import java.awt.Rectangle;
 import java.awt.Robot;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 
@@ -12,8 +14,9 @@ public class CSGOBot {
     FileProcessor cssProcessor;
     private String ip;
 
-    private Pixel tMarker = new Pixel(84, 74, 59, 255);
-    private Pixel ctMarker = new Pixel(26, 32, 35, 255);
+    private Pixel tMarker = new Pixel(55, 45, 29, 255);
+    private Pixel ctMarker = new Pixel(81, 91, 98, 255);
+    private Pixel roundMarker = new Pixel(195, 190, 195, 255);
     private Pixel whiteMarker = new Pixel(255, 255, 255, 255);
 
     private int count;
@@ -61,26 +64,29 @@ public class CSGOBot {
     public Pic takeCap() throws IOException {
         BufferedImage cap = myBot.createScreenCapture(new Rectangle(553, 112, 813, 195));
         Pic pic = new Pic(cap);
-//        pic.show();
-//        File outputfile = new File("TTest.png");
+//        p ic.show();
+//        File outputfile = new File("res/TTest.png");
 //        ImageIO.write(cap, "png", outputfile);
         return pic;
     }
 
     public void readPixels(Pic pic) {
 //        pic.show();
-        Pixel matchStart = pic.getPixel(170, 499);
-        Pixel matchNotWhite = pic.getPixel(32, 54);
-        Pixel white = pic.getPixel(32, 51);
-        Pixel center = pic.getPixel(32, 743);
+        Pixel matchStartPix = pic.getPixel(170, 499);
+        Pixel matchNotWhitePix = pic.getPixel(32, 54);
+        Pixel roundPix = pic.getPixel(30, 308);
+        Pixel centerPix = pic.getPixel(75, 760);
 
-        if(white.inRange(whiteMarker, 0) && matchStarted && count > 2) {
-            if(center.inRange(tMarker, 3)) {
+        System.out.println(roundPix);
+        System.out.println(matchNotWhitePix);
+        System.out.println(centerPix);
+        if(roundPix.inRange(roundMarker, 40) && matchStarted && count > 2) {
+            if(centerPix.inRange(tMarker, 20)) {
                 System.out.println("Terrorists Win bitch!");
                 tWin();
                 tScore++;
                 count = 0;
-            } else if(center.inRange(ctMarker, 3)) {
+            } else if(centerPix.inRange(ctMarker, 20)) {
                 System.out.println("Counter Terrorists Win bitch!");
                 ctWin();
                 ctScore++;
@@ -89,12 +95,14 @@ public class CSGOBot {
                 System.out.println("White checked, no winner");
             }
             System.out.println("CT: " + ctScore + " T: " + tScore);
-        } else if(matchStart.inRange(whiteMarker, 0) && !matchNotWhite.inRange(whiteMarker, 50)
-                &&  count > 2) {
+        } else if(matchStartPix.inRange(whiteMarker, 0) && !matchNotWhitePix.inRange(whiteMarker, 50) &&  count > 2) {
             System.out.println("Match Started!");
             count = 0;
             tScore = 0;
             ctScore = 0;
+            if (!cssProcessor.tLeft()) {
+                swapTeams();
+            }
             matchStarted = true;
         }
         count++;
@@ -126,8 +134,9 @@ public class CSGOBot {
     }
 
     public void swapTeams() {
+        int temp = tScore;
         tScore = ctScore;
-        ctScore = 15 - tScore;
+        ctScore = temp;
 
         if (cssProcessor.tLeft()) {
             cssProcessor.replaceSelected("#left.*\"Terrorist.png", "#left { background-image: url(\"CounterTerrorist.png");
